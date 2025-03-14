@@ -1,21 +1,30 @@
+// Add proper authentication middleware
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js';
 
-export default async function authenticate(req, res, next) {
-    const token = req.header('Authorization').replace('Bearer ', '') || res.cookie('token');
+const authenticate = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1] || req.cookies.token;
+
     if (!token) {
-        return res.status(401).json({ message: 'Unauthorized' });
+      return res.status(401).json({ message: "Unauthorized: No token provided" });
     }
-    try {
-        const decoded = jwt.verify(token, process.env.SECRET_KEY);
-        const user = await User.findById(decoded._id);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        req.user = user;
-        next();
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.id).select('-password');
+    
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized: User not found" });
     }
-    catch (error) {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
-    };
+
+    req.user = user;
+    
+    next();
+  } catch (error) {
+    console.error("Authentication error:", error);
+    return res.status(401).json({ message: "Unauthorized: Invalid token" });
+  }
+};
+
+export default authenticate;

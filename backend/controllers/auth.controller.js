@@ -2,6 +2,7 @@ import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js';
 import { generateToken } from '../lib/utils.js';
+import cloudinary from '../lib/cloudinary.js';
 
 export const signup = async (req, res) => {
     try {
@@ -86,18 +87,39 @@ export const logout = (req, res) => {
 export const profile = async (req, res) => {
     try {
         const { name, email, profilepic } = req.body;
-        const
-        user = await User.findById(req.user._id);
+        const user = await User.findById(req.user._id);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
+        
+        // Update user data
         user.name = name || user.name;
         user.email = email || user.email;
-        user.profilepic = profilepic || user.profilepic;
+        
+        // Handle profile picture upload if provided
+        if (profilepic) {
+            try {
+                const result = await cloudinary.uploader.upload(profilepic);
+                user.profilepic = result.secure_url;
+            } catch (error) {
+                console.error("Error uploading profile picture:", error);
+                return res.status(400).json({ message: "Profile picture upload failed" });
+            }
+        }
+        
         await user.save();
-        return res.status(200).json({ message: "Profile updated successfully" });
+        return res.status(200).json({ 
+            message: "Profile updated successfully",
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                profilepic: user.profilepic
+            }
+        });
     }
     catch(error){
         console.error("Error updating profile:", error);
+        return res.status(500).json({ message: "Server error", error: error.message });
     }
 };
