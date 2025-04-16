@@ -122,9 +122,9 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact
 
-Your Name - [@yourtwitter](https://twitter.com/yourtwitter) - email@example.com
+Your Name - Sajal_Garg
 
-Project Link: [https://github.com/yourusername/chatter](https://github.com/yourusername/chatter)
+Project Link: [https://github.com/SajalGarg035/chatter](https://github.com/SajalGarg035/chatter)
 
 ## Acknowledgements
 
@@ -135,4 +135,3 @@ Project Link: [https://github.com/yourusername/chatter](https://github.com/youru
 - [Node.js](https://nodejs.org/)
 ```
 
-Don't forget to create a 'screenshots' directory and add your application screenshots before deploying.
